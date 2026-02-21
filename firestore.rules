@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to get the current user's role from the users collection
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      // Users can create/update their own document (e.g., during signup)
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false; 
+    }
+
+    match /tasks/{taskId} {
+      // Authenticated users can read tasks (filtering is done on the client, but read is allowed)
+      allow read: if request.auth != null;
+      
+      // Only CCs can create and delete tasks
+      allow create, delete: if request.auth != null && getUserRole() == "CC";
+        
+      // OCs can update only if they are assigned to the task. CCs can update any task.
+      allow update: if request.auth != null && (
+        getUserRole() == "CC" ||
+        (getUserRole() == "OC" && resource.data.assignedTo == request.auth.uid)
+      );
+    }
+  }
+}

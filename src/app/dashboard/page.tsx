@@ -9,7 +9,7 @@ import Navbar from "@/components/Navbar";
 import TaskCard from "@/components/TaskCard";
 import TaskModal from "@/components/TaskModal";
 import TimetablePopup from "@/components/TimetablePopup";
-import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default function DashboardPage() {
@@ -76,6 +76,17 @@ export default function DashboardPage() {
         }
     };
 
+    const handleDeleteTask = async (taskId: string) => {
+        if (!confirm("Are you sure you want to delete this task?")) return;
+        try {
+            await deleteDoc(doc(db, "tasks", taskId));
+            loadTasks();
+        } catch (error) {
+            console.error("Error deleting task: ", error);
+            alert("Failed to delete task. You might not have permission.");
+        }
+    };
+
     if (!isLoggedIn) return null; // Avoid flicker before redirect
 
     const immediateTasks = tasks.filter(t => t.type === 'immediate' && t.status === 'pending');
@@ -121,11 +132,11 @@ export default function DashboardPage() {
                         <>
                             {immediateTasks.length > 0 && (
                                 <>
-                                    {immediateTasks.map(t => <TaskCard key={t.id} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} />)}
+                                    {immediateTasks.map(t => <TaskCard key={t.id} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} onDelete={handleDeleteTask} />)}
                                     {otherTasks.length > 0 && <div className="task-section-divider">Scheduled Tasks</div>}
                                 </>
                             )}
-                            {otherTasks.map(t => <TaskCard key={t.id} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} />)}
+                            {otherTasks.map(t => <TaskCard key={t.id} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} onDelete={handleDeleteTask} />)}
                         </>
                     )}
                 </div>

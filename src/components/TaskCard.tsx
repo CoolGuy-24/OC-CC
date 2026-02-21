@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { isTaskOverdue, formatDeadlineDDMMYYYY, formatDateDDMMYYYY } from "@/lib/availability";
 
-export default function TaskCard({ task, roleView, onComplete }: { task: any, roleView: string, onComplete?: (taskId: string) => void }) {
+export default function TaskCard({ task, roleView, onComplete, onDelete }: { task: any, roleView: string, onComplete?: (taskId: string) => void, onDelete?: (taskId: string) => void }) {
     const [expanded, setExpanded] = useState(false);
 
     const desc = task.description || '';
@@ -85,14 +85,25 @@ export default function TaskCard({ task, roleView, onComplete }: { task: any, ro
                     <span className={`task-status-badge ${task.status}`}>
                         {task.status === 'pending' ? '⏳ Pending' : '✅ Completed'}
                     </span>
-                    {(roleView === 'oc' && task.status === 'pending' && onComplete) && (
-                        <button
-                            className="btn-complete"
-                            onClick={(e) => { e.stopPropagation(); onComplete(task.id); }}
-                        >
-                            Mark Done
-                        </button>
-                    )}
+                    <div className="task-actions" style={{ display: 'flex', gap: '8px' }}>
+                        {(roleView === 'oc' && task.status === 'pending' && onComplete) && (
+                            <button
+                                className="btn-complete"
+                                onClick={(e) => { e.stopPropagation(); onComplete(task.firebaseId || task.id); }}
+                            >
+                                Mark Done
+                            </button>
+                        )}
+                        {(roleView === 'cc' && onDelete) && (
+                            <button
+                                className="btn-cancel"
+                                onClick={(e) => { e.stopPropagation(); onDelete(task.firebaseId || task.id); }}
+                                style={{ padding: '6px 12px', fontSize: '12px', backgroundColor: '#3f3f46', color: '#f1f1f1', border: '1px solid #52525b', borderRadius: '6px', cursor: 'pointer' }}
+                            >
+                                Delete
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
