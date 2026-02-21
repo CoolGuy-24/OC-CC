@@ -1,0 +1,1 @@
+export const CC_AUTH_KEY = "spons2026cc";

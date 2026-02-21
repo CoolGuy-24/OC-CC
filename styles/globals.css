@@ -1,0 +1,289 @@
+/* --- NIRVAAH REVELS '26 THEME --- */
+:root {
+    --primary: #006a6a;
+    --primary-hover: #008b8b;
+    --accent: #d4af37;
+    --bg-dark: #081414;
+    --glass: rgba(233, 226, 208, 0.12);
+    --text-cream: #e9e2d0;
+    --input-bg: rgba(0, 0, 0, 0.5);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-cream);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Background */
+.background-circles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 15% 20%, #004d4d 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, #002b2b 0%, transparent 45%);
+    z-index: -1;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    padding: 40px 20px;
+}
+
+/* ===== MAIN GLASS CARD ===== */
+.box {
+    background: var(--glass);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(233, 226, 208, 0.2);
+    padding: 40px;
+    border-radius: 28px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    width: 100%;
+}
+
+/* ===== HEADINGS ===== */
+header h2,
+.box h2 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 700;
+    background: linear-gradient(to right, #00cccc, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+header p {
+    color: #a19d91;
+    font-size: 15px;
+    margin-top: 10px;
+    margin-bottom: 35px;
+}
+
+/* ===== INPUT GROUPS ===== */
+.input-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.input-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ===== INPUTS (text, password, date, time) — NO arrow ===== */
+input[type="text"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--input-bg);
+    border: 1px solid rgba(233, 226, 208, 0.15);
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: 0.3s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* ===== SELECT DROPDOWNS — with custom arrow ===== */
+select,
+.modern-select {
+    width: 100%;
+    padding: 14px 44px 14px 16px;
+    background: var(--input-bg);
+    border: 1px solid rgba(233, 226, 208, 0.15);
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: 0.3s;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23d4af37'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 18px;
+}
+
+/* Focus states */
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 18px rgba(212, 175, 55, 0.25);
+}
+
+/* Date/time color-scheme for dark backgrounds */
+input[type="date"],
+input[type="time"] {
+    color-scheme: dark;
+}
+
+select option {
+    background-color: #0d1b1b;
+    color: var(--text-cream);
+}
+
+/* ===== BUTTONS ===== */
+.btn-show {
+    width: 100%;
+    padding: 16px;
+    background: var(--primary);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+    font-family: 'Inter', sans-serif;
+}
+
+.btn-show:hover {
+    background: var(--primary-hover);
+    transform: translateY(-3px);
+}
+
+.btn-show:active {
+    transform: translateY(0);
+}
+
+/* ===== RESULT CARDS ===== */
+.schedule-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 14px;
+    border-left: 5px solid var(--accent);
+    font-size: 14px;
+    color: #f1f1f1;
+    margin-bottom: 10px;
+}
+
+.full-day-badge {
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+/* ===== AUTH FOOTER ===== */
+.auth-footer {
+    margin-top: 18px;
+    font-size: 15px;
+    text-align: center;
+}
+
+.create-link,
+.auth-footer a {
+    color: #00e6d0;
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 6px;
+    transition: 0.3s;
+}
+
+.create-link:hover,
+.auth-footer a:hover {
+    color: #d4af37;
+    text-decoration: underline;
+}
+
+
+/* =======================================================
+   RESPONSIVE — MOBILE / TABLET
+   ======================================================= */
+
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 16px 8px;
+    }
+
+    .box {
+        padding: 24px 18px;
+        border-radius: 20px;
+    }
+
+    header h2, .box h2 {
+        font-size: 24px;
+    }
+
+    header p {
+        font-size: 13px;
+        margin-bottom: 24px;
+    }
+
+    .btn-show {
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    .modern-select,
+    textarea {
+        padding: 12px 14px;
+        font-size: 14px;
+        border-radius: 10px;
+    }
+
+    select,
+    .modern-select {
+        padding-right: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: 100%;
+        padding: 10px 6px;
+    }
+
+    .box {
+        padding: 20px 14px;
+        border-radius: 16px;
+    }
+
+    header h2, .box h2 {
+        font-size: 20px;
+    }
+}
