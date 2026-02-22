@@ -243,7 +243,7 @@ export default function LoginPage() {
             )}
 
             <p style={{ fontSize: "10px", color: "rgba(161, 157, 145, 0.45)", textAlign: "center", marginTop: "20px", letterSpacing: "0.3px", lineHeight: 1.5 }}>
-                Developed by: Keshav Krishna Singh, Meenakshi S Nair, Vedant Mundra
+                Developed by: Vedant Mundra, Keshav Krishna Singh, Meenakshi S Nair
             </p>
         </div>
     );
