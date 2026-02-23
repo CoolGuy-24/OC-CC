@@ -142,11 +142,11 @@ export const TIMETABLE_DATA: Record<string, any> = {
 
     "Regan Desouza": {
         "fullDays": ["Monday", "Friday"],
-        "Monday": "09.00-11.30: EE Lab (A2), 01.00-02.00: TE, 02.00-03.00: EM-IV, 03.30-04.30: BRCD",
+        "Monday": "09.00-11.30: EE Lab (A2), 13.00-14.00: TE, 14.00-15.00: EM-IV, 15.30-16.30: BRCD",
         "Tuesday": "08.00-09.00: WWM, 09.00-10.00: GE, 10.30-11.30: WRE, 11.30-12.30: TE",
-        "Wednesday": "02.00-03.00: WWM, 03.30-04.30: GE",
+        "Wednesday": "14.00-15.00: WWM, 15.30-16.30: GE",
         "Thursday": "08.00-09.00: WRE, 09.00-10.00: TE, 10.30-11.30: EM-IV, 11.30-12.30: BRCD",
-        "Friday": "09.00-11.30: SP (A2), 02.00-03.00: WRE, 03.30-04.30: TE",
+        "Friday": "09.00-11.30: SP (A2), 14.00-15.00: WRE, 15.30-16.30: TE",
         "Saturday": "08.00-09.00: EM-IV, 09.00-10.00: BRCD, 10.30-11.30: WWM, 11.30-12.30: GE"
     },
 

@@ -215,7 +215,14 @@ export default function TaskModal({ isOpen, onClose, onAssigned }: { isOpen: boo
                                                     onChange={() => toggleOCSelection(oc.name)}
                                                 />
                                                 <span>{oc.name}</span>
-                                                <span className="oc-status">{oc.status}</span>
+                                                <div style={{ display: "flex", flexDirection: "column" }}>
+                                                    <span className="oc-status">{oc.status}</span>
+                                                    {oc.freeMinutes > 0 && (
+                                                        <span style={{ fontSize: "0.8rem", color: "#8b949e", marginTop: "2px" }}>
+                                                            Total Free: {Math.floor(oc.freeMinutes / 60)}h {oc.freeMinutes % 60}m
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </label>
                                         ))}
                                     </div>
