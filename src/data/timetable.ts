@@ -12,21 +12,21 @@ export const TIMETABLE_DATA: Record<string, any> = {
 
     "Vivaan Bohra": {
         "fullDays": ["Tuesday", "Thursday"],
-        "Monday": "01.00-02.00: MC, 02.00-03.00: LIC, 03.30-04.30: CT",
-        "Tuesday": "08.00-09.00: MAT-IV, 09.00-10.00: II, 10.30-11.30: DSP, 11.30-12.30: MC, 02.00-04.30: AS Lab G3 / MC Lab G1",
-        "Wednesday": "02.00-03.00: MAT-IV, 03.30-04.30: II",
-        "Thursday": "08.00-09.00: DSP, 09.00-10.00: MC, 10.30-11.30: LIC, 11.30-12.30: CT, 02.00-04.30: AS Lab G2",
-        "Friday": "02.00-03.00: DSP, 03.30-04.30: MC",
+        "Monday": "13.00-14.00: MC, 14.00-15.00: LIC, 15.30-16.30: CT",
+        "Tuesday": "08.00-09.00: MAT-IV, 09.00-10.00: II, 10.30-11.30: DSP, 11.30-12.30: MC, 14.00-16.30: AS Lab G3 / MC Lab G1",
+        "Wednesday": "14.00-15.00: MAT-IV, 15.30-16.30: II",
+        "Thursday": "08.00-09.00: DSP, 09.00-10.00: MC, 10.30-11.30: LIC, 11.30-12.30: CT, 14.00-16.30: AS Lab G2",
+        "Friday": "14.00-15.00: DSP, 15.30-16.30: MC",
         "Saturday": "08.00-09.00: LIC, 09.00-10.00: CT, 10.30-11.30: MAT-IV, 11.30-12.30: II"
     },
 
     "Sheetal A Pai": {
         "fullDays": ["Tuesday", "Wednesday"],
-        "Monday": "01.00-02.00: MC, 02.00-03.00: LIC, 03.30-04.30: CT",
-        "Tuesday": "08.00-09.00: MAT-IV, 09.00-10.00: II, 10.30-11.30: DSP, 11.30-12.30: MC, 02.00-04.30: AS Lab G3 / MC Lab G1",
-        "Wednesday": "10.30-01.00: AS Lab G1, 02.00-03.00: MAT-IV, 03.30-04.30: II",
+        "Monday": "13.00-15.00: MC, 14.00-15.00: LIC, 15.30-16.30: CT",
+        "Tuesday": "08.00-09.00: MAT-IV, 09.00-10.00: II, 10.30-11.30: DSP, 11.30-12.30: MC, 14.00-16.30: AS Lab G3 / MC Lab G1",
+        "Wednesday": "10.30-13.00: AS Lab G1, 14.00-15.00: MAT-IV, 15.30-16.30: II",
         "Thursday": "08.00-09.00: DSP, 09.00-10.00: MC, 10.30-11.30: LIC, 11.30-12.30: CT",
-        "Friday": "02.00-03.00: DSP, 03.30-04.30: MC",
+        "Friday": "14.00-15.00: DSP, 15.30-16.30: MC",
         "Saturday": "08.00-09.00: LIC, 09.00-10.00: CT, 10.30-11.30: MAT-IV, 11.30-12.30: II"
     },
 

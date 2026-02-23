@@ -86,12 +86,14 @@ export function findFreeOCsData(day: string, startStr: string, endStr: string) {
     const startMin = startStr ? timeToMinutes(startStr) : null;
     const endMin = endStr ? timeToMinutes(endStr) : null;
 
+    if (startMin !== null && endMin !== null && endMin <= startMin) {
+        return { error: 'To time must be after From time.' };
+    }
+
     const freeOCs: { name: string, status: string }[] = [];
 
     Object.keys(TIMETABLE_DATA).sort().forEach(name => {
         const person = TIMETABLE_DATA[name];
-
-        if (person.fullDays && person.fullDays.includes(day)) return;
 
         const schedule = person[day];
 
