@@ -102,7 +102,7 @@ export default function DashboardPage() {
         displayTasks = displayTasks.filter(t => t.status === 'completed');
     }
 
-    if (dateFilter && currentFilter !== 'all') {
+    if (dateFilter) {
         displayTasks = displayTasks.filter(t => {
             if (!t.createdAt) return false;
             const date = new Date(t.createdAt);
