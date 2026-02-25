@@ -18,8 +18,10 @@ export default function TaskCard({ task, roleView, onComplete, onDelete, onEdit 
     let typeBadge = null;
     if (isImmediate && task.status === 'pending') {
         typeBadge = <span className="task-type-badge badge-immediate">⚡ Immediate</span>;
-    } else if (overdue) {
+    } else if (overdue && task.status === 'pending') {
         typeBadge = <span className="task-type-badge badge-overdue">🔴 Overdue</span>;
+    } else if (overdue && task.status === 'completed') {
+        typeBadge = <span className="task-type-badge badge-overdue" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>🔴 Completed Late</span>;
     }
 
     const whoLabel = roleView === 'cc' ? 'Assigned To' : 'Assigned By';
@@ -32,7 +34,7 @@ export default function TaskCard({ task, roleView, onComplete, onDelete, onEdit 
     return (
         <div className={cardClass}>
             <div className="task-card-header" onClick={() => setExpanded(!expanded)}>
-                <span className={`task-status-badge ${task.status}`}>
+                <span className={`task-status-badge ${task.status} ${overdue && task.status === 'completed' ? 'overdue' : ''}`} style={overdue && task.status === 'completed' ? { backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' } : {}}>
                     {task.status === 'pending' ? '⏳' : '✅'}
                 </span>
                 <span className="task-title" style={{ flex: 1, minWidth: 0, fontSize: '15px', fontWeight: 600, color: '#f1f1f1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -82,8 +84,8 @@ export default function TaskCard({ task, roleView, onComplete, onDelete, onEdit 
                 </div>
 
                 <div className="task-card-footer">
-                    <span className={`task-status-badge ${task.status}`}>
-                        {task.status === 'pending' ? '⏳ Pending' : '✅ Completed'}
+                    <span className={`task-status-badge ${task.status} ${overdue && task.status === 'completed' ? 'overdue' : ''}`} style={overdue && task.status === 'completed' ? { backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' } : {}}>
+                        {task.status === 'pending' ? '⏳ Pending' : (overdue ? '✅ Completed Late' : '✅ Completed')}
                     </span>
                     <div className="task-actions" style={{ display: 'flex', gap: '8px' }}>
                         {(roleView === 'oc' && task.status === 'pending' && onComplete) && (

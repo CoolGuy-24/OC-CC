@@ -11,7 +11,7 @@ export function dotTimeToMinutes(dotStr: string) {
 }
 
 export function isTaskOverdue(task: any) {
-    if (task.status === 'completed' || !task.deadline) return false;
+    if (!task.deadline) return false;
     const parts = task.deadline.split(' ');
     let deadlineDate;
     if (parts[1]) {
@@ -19,7 +19,17 @@ export function isTaskOverdue(task: any) {
     } else {
         deadlineDate = new Date(parts[0] + 'T23:59:59');
     }
-    return !isNaN(deadlineDate.getTime()) && new Date() > deadlineDate;
+
+    if (isNaN(deadlineDate.getTime())) return false;
+
+    if (task.status === 'completed' && task.completedAt) {
+        // If completed, check if completedAt is after deadline
+        const completedDate = new Date(task.completedAt);
+        return !isNaN(completedDate.getTime()) && completedDate > deadlineDate;
+    }
+
+    // If pending, check if current time is after deadline
+    return new Date() > deadlineDate;
 }
 
 export function getDeadlineTimestamp(task: any) {
