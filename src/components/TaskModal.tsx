@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { findFreeOCsData } from "@/lib/availability";
 import { generateTaskId } from "@/lib/storage";
 import { useAuth } from "@/lib/auth";
 import { TIMETABLE_DATA } from "@/data/timetable";
 import { COMMITTEE_DATA } from "@/data/committees";
-import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-export default function TaskModal({ isOpen, onClose, onAssigned }: { isOpen: boolean, onClose: () => void, onAssigned: () => void }) {
+export default function TaskModal({ isOpen, onClose, onAssigned, taskToEdit }: { isOpen: boolean, onClose: () => void, onAssigned: () => void, taskToEdit?: any }) {
     const { uid, user, committee, committeeHasTimetable } = useAuth();
 
     const [workMode, setWorkMode] = useState<'immediate' | 'scheduled'>('immediate');
@@ -26,6 +26,35 @@ export default function TaskModal({ isOpen, onClose, onAssigned }: { isOpen: boo
     const [end, setEnd] = useState('');
 
     const [selectedOCs, setSelectedOCs] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (taskToEdit && isOpen) {
+            setWorkMode(taskToEdit.type || 'immediate');
+            setTitle(taskToEdit.title || '');
+            setDescription(taskToEdit.description || '');
+            if (taskToEdit.type === 'scheduled' && taskToEdit.deadline) {
+                const parts = taskToEdit.deadline.split(' ');
+                setDeadlineDate(parts[0] || '');
+                setDeadlineTime(parts[1] || '');
+            } else {
+                setDeadlineDate('');
+                setDeadlineTime('');
+            }
+            if (taskToEdit.assignedToName) {
+                setSelectedOCs([taskToEdit.assignedToName]);
+            }
+        } else if (isOpen) {
+            setTitle("");
+            setDescription("");
+            setDeadlineDate("");
+            setDeadlineTime("");
+            setDay("");
+            setStart("");
+            setEnd("");
+            setSelectedOCs([]);
+            setWorkMode("immediate");
+        }
+    }, [taskToEdit, isOpen]);
 
     if (!isOpen) return null;
 
@@ -76,8 +105,8 @@ export default function TaskModal({ isOpen, onClose, onAssigned }: { isOpen: boo
                 }
             });
 
-            // 3️⃣ Create tasks
-            const taskPromises = selectedOCs.map(async (ocName: string) => {
+            // 3️⃣ Create or Edit tasks
+            const taskPromises = selectedOCs.map(async (ocName: string, index: number) => {
                 const assignedToUid = ocUids[ocName];
 
                 if (!assignedToUid) {
@@ -85,23 +114,35 @@ export default function TaskModal({ isOpen, onClose, onAssigned }: { isOpen: boo
                     return;
                 }
 
-                const taskId = generateTaskId();
+                if (taskToEdit && index === 0) {
+                    // Update existing
+                    await updateDoc(doc(db, "tasks", taskToEdit.firebaseId || taskToEdit.id), {
+                        assignedTo: assignedToUid,
+                        assignedToName: ocName,
+                        title: title.trim(),
+                        description: description.trim(),
+                        type: workMode,
+                        deadline: deadline,
+                    });
+                } else {
+                    const taskId = generateTaskId();
 
-                await setDoc(doc(db, "tasks", taskId), {
-                    id: taskId,
-                    assignedTo: assignedToUid,   // ✅ REAL UID
-                    assignedToName: ocName,
-                    assignedBy: uid,
-                    assignedByName: user,
-                    title: title.trim(),
-                    description: description.trim(),
-                    type: workMode,
-                    deadline: deadline,
-                    committee: committee,
-                    status: "pending",
-                    createdAt: new Date().toISOString(),
-                    completedAt: ""
-                });
+                    await setDoc(doc(db, "tasks", taskId), {
+                        id: taskId,
+                        assignedTo: assignedToUid,   // ✅ REAL UID
+                        assignedToName: ocName,
+                        assignedBy: uid,
+                        assignedByName: user,
+                        title: title.trim(),
+                        description: description.trim(),
+                        type: workMode,
+                        deadline: deadline,
+                        committee: committee,
+                        status: "pending",
+                        createdAt: new Date().toISOString(),
+                        completedAt: ""
+                    });
+                }
             });
 
             await Promise.all(taskPromises);
@@ -128,8 +169,8 @@ export default function TaskModal({ isOpen, onClose, onAssigned }: { isOpen: boo
     return (
         <div className="task-modal-overlay" style={{ display: 'flex' }}>
             <div className="task-modal">
-                <h2>Allot New Work</h2>
-                <p>Assign tasks to OCs in your committee and track their progress.</p>
+                <h2>{taskToEdit ? 'Edit Task' : 'Allot New Work'}</h2>
+                <p>{taskToEdit ? 'Update the details for this task.' : 'Assign tasks to OCs in your committee and track their progress.'}</p>
 
                 <div className="work-toggle">
                     <button
@@ -290,7 +331,7 @@ export default function TaskModal({ isOpen, onClose, onAssigned }: { isOpen: boo
 
                 <div className="modal-actions">
                     <button className="btn-cancel" onClick={onClose}>Cancel</button>
-                    <button className="btn-assign" onClick={handleAssign}>Assign to Selected OCs</button>
+                    <button className="btn-assign" onClick={handleAssign}>{taskToEdit ? 'Save Task' : 'Assign to Selected OCs'}</button>
                 </div>
             </div>
         </div>

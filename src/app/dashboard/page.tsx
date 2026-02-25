@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { sortTasksPrioritized } from "@/lib/availability";
+import { sortTasksPrioritized, isTaskOverdue } from "@/lib/availability";
 import { CC_AUTH_KEY } from "@/data/config";
 import Navbar from "@/components/Navbar";
 import TaskCard from "@/components/TaskCard";
@@ -22,6 +22,13 @@ export default function DashboardPage() {
     const [ccFilter, setCcFilter] = useState("all");
     const [ocFilter, setOcFilter] = useState("all");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingTask, setEditingTask] = useState<any>(null);
+    const [dateFilter, setDateFilter] = useState<string>("");
+
+    const handleEditTask = (task: any) => {
+        setEditingTask(task);
+        setIsModalOpen(true);
+    };
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -29,7 +36,7 @@ export default function DashboardPage() {
         } else {
             loadTasks();
         }
-    }, [isLoggedIn, router, ccFilter, ocFilter]);
+    }, [isLoggedIn, router]);
 
     const loadTasks = async () => {
         if (!uid) return;
@@ -49,13 +56,7 @@ export default function DashboardPage() {
                 allTasks.push({ firebaseId: docSnap.id, ...docSnap.data() });
             });
 
-            if (normalizedRole === 'cc') {
-                if (committee) allTasks = allTasks.filter(t => t.committee === committee);
-                if (ccFilter !== 'all') allTasks = allTasks.filter(t => t.status === ccFilter);
-            } else {
-                if (committee) allTasks = allTasks.filter(t => t.committee === committee);
-                if (ocFilter !== 'all') allTasks = allTasks.filter(t => t.status === ocFilter);
-            }
+            if (committee) allTasks = allTasks.filter(t => t.committee === committee);
 
             setTasks(sortTasksPrioritized(allTasks));
         } catch (error) {
@@ -89,60 +90,103 @@ export default function DashboardPage() {
 
     if (!isLoggedIn) return null; // Avoid flicker before redirect
 
-    const immediateTasks = tasks.filter(t => t.type === 'immediate' && t.status === 'pending');
-    const otherTasks = tasks.filter(t => !(t.type === 'immediate' && t.status === 'pending'));
+    const currentFilter = normalizedRole === 'cc' ? ccFilter : ocFilter;
+
+    let displayTasks = tasks;
+
+    if (currentFilter === 'pending') {
+        displayTasks = displayTasks.filter(t => t.status === 'pending' && (!isTaskOverdue(t) || t.type === 'immediate'));
+    } else if (currentFilter === 'overdue') {
+        displayTasks = displayTasks.filter(t => t.status === 'pending' && isTaskOverdue(t) && t.type !== 'immediate');
+    } else if (currentFilter === 'completed') {
+        displayTasks = displayTasks.filter(t => t.status === 'completed');
+    }
+
+    if (dateFilter) {
+        displayTasks = displayTasks.filter(t => {
+            if (!t.createdAt) return false;
+            const date = new Date(t.createdAt);
+            const localDate = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+            return localDate === dateFilter;
+        });
+    }
+
+    const immediateTasks = displayTasks.filter(t => t.type === 'immediate' && t.status === 'pending');
+    const overdueTasks = displayTasks.filter(t => t.status === 'pending' && t.type !== 'immediate' && isTaskOverdue(t));
+    const pendingTasks = displayTasks.filter(t => t.status === 'pending' && t.type !== 'immediate' && !isTaskOverdue(t));
+    const completedTasks = displayTasks.filter(t => t.status === 'completed');
 
     return (
         <>
-            <Navbar onAllotWorkClick={() => setIsModalOpen(true)} />
+            <Navbar onAllotWorkClick={() => { setEditingTask(null); setIsModalOpen(true); }} />
 
             {normalizedRole === 'cc' && committeeHasTimetable && <TimetablePopup />}
 
             <div className="task-section">
-                {normalizedRole === 'cc' ? (
-                    <>
-                        <h3 style={{ color: "var(--accent)", margin: "0 0 5px 0", fontSize: "16px" }}>Allocated Tasks</h3>
-                        <p>Monitor tasks you have assigned to your OCs</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "15px", flexWrap: "wrap", gap: "10px" }}>
+                    <div>
+                        {normalizedRole === 'cc' ? (
+                            <>
+                                <h3 style={{ color: "var(--accent)", margin: "0 0 5px 0", fontSize: "16px" }}>Allocated Tasks</h3>
+                                <p style={{ margin: 0 }}>Monitor tasks you have assigned to your OCs</p>
+                            </>
+                        ) : (
+                            <>
+                                <h3 style={{ color: "var(--accent)", margin: "0 0 5px 0", fontSize: "16px" }}>Your Tasks</h3>
+                                <p style={{ margin: 0 }}>Tasks assigned to you by your CC</p>
+                            </>
+                        )}
+                    </div>
+                    <div className="date-filter" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <label style={{ fontSize: "14px", color: "var(--text-secondary)" }}>Date:</label>
+                        <input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="modern-select" style={{ padding: "6px 10px", width: "auto" }} />
+                    </div>
+                </div>
 
-                        <div className="task-tabs">
-                            <button className={`task-tab ${ccFilter === 'all' ? 'active' : ''}`} onClick={() => setCcFilter('all')}>All Tasks</button>
-                            <button className={`task-tab ${ccFilter === 'pending' ? 'active' : ''}`} onClick={() => setCcFilter('pending')}>Pending</button>
-                            <button className={`task-tab ${ccFilter === 'completed' ? 'active' : ''}`} onClick={() => setCcFilter('completed')}>Completed</button>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <h3 style={{ color: "var(--accent)", margin: "0 0 5px 0", fontSize: "16px" }}>Your Tasks</h3>
-                        <p>Tasks assigned to you by your CC</p>
-
-                        <div className="task-tabs">
-                            <button className={`task-tab ${ocFilter === 'all' ? 'active' : ''}`} onClick={() => setOcFilter('all')}>All Tasks</button>
-                            <button className={`task-tab ${ocFilter === 'pending' ? 'active' : ''}`} onClick={() => setOcFilter('pending')}>Pending</button>
-                            <button className={`task-tab ${ocFilter === 'completed' ? 'active' : ''}`} onClick={() => setOcFilter('completed')}>Completed</button>
-                        </div>
-                    </>
-                )}
+                <div className="task-tabs" style={{ marginBottom: "20px" }}>
+                    <button className={`task-tab ${currentFilter === 'all' ? 'active' : ''}`} onClick={() => normalizedRole === 'cc' ? setCcFilter('all') : setOcFilter('all')}>All Tasks</button>
+                    <button className={`task-tab ${currentFilter === 'pending' ? 'active' : ''}`} onClick={() => normalizedRole === 'cc' ? setCcFilter('pending') : setOcFilter('pending')}>Pending</button>
+                    <button className={`task-tab ${currentFilter === 'overdue' ? 'active' : ''}`} onClick={() => normalizedRole === 'cc' ? setCcFilter('overdue') : setOcFilter('overdue')}>Overdue</button>
+                    <button className={`task-tab ${currentFilter === 'completed' ? 'active' : ''}`} onClick={() => normalizedRole === 'cc' ? setCcFilter('completed') : setOcFilter('completed')}>Completed</button>
+                </div>
 
                 <div>
-                    {tasks.length === 0 ? (
+                    {displayTasks.length === 0 ? (
                         <div className="no-tasks">
-                            {normalizedRole === 'cc' ? 'No tasks found. Click "+ Allot Work" to assign tasks to OCs.' : 'No tasks assigned to you yet. Check back later!'}
+                            {tasks.length === 0 ? (normalizedRole === 'cc' ? 'No tasks found. Click "+ Allot Work" to assign tasks to OCs.' : 'No tasks assigned to you yet. Check back later!') : 'No tasks match your filters.'}
                         </div>
                     ) : (
                         <>
                             {immediateTasks.length > 0 && (
-                                <>
-                                    {immediateTasks.map(t => <TaskCard key={t.id} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} onDelete={handleDeleteTask} />)}
-                                    {otherTasks.length > 0 && <div className="task-section-divider">Scheduled Tasks</div>}
-                                </>
+                                <div style={{ marginBottom: "20px" }}>
+                                    <h4 style={{ color: "var(--accent)", margin: "0 0 10px 0", fontSize: "15px", display: "flex", alignItems: "center", gap: "6px" }}>⚡ Immediate Tasks</h4>
+                                    {immediateTasks.map(t => <TaskCard key={t.id || t.firebaseId} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} onDelete={handleDeleteTask} onEdit={handleEditTask} />)}
+                                </div>
                             )}
-                            {otherTasks.map(t => <TaskCard key={t.id} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} onDelete={handleDeleteTask} />)}
+                            {overdueTasks.length > 0 && (
+                                <div style={{ marginBottom: "20px" }}>
+                                    <h4 style={{ color: "#ef4444", margin: "0 0 10px 0", fontSize: "15px", display: "flex", alignItems: "center", gap: "6px" }}>🔴 Overdue Tasks</h4>
+                                    {overdueTasks.map(t => <TaskCard key={t.id || t.firebaseId} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} onDelete={handleDeleteTask} onEdit={handleEditTask} />)}
+                                </div>
+                            )}
+                            {pendingTasks.length > 0 && (
+                                <div style={{ marginBottom: "20px" }}>
+                                    <h4 style={{ color: "var(--text-primary)", margin: "0 0 10px 0", fontSize: "15px", display: "flex", alignItems: "center", gap: "6px" }}>⏳ Pending Tasks</h4>
+                                    {pendingTasks.map(t => <TaskCard key={t.id || t.firebaseId} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} onDelete={handleDeleteTask} onEdit={handleEditTask} />)}
+                                </div>
+                            )}
+                            {completedTasks.length > 0 && (
+                                <div style={{ marginBottom: "20px" }}>
+                                    <h4 style={{ color: "#34d399", margin: "0 0 10px 0", fontSize: "15px", display: "flex", alignItems: "center", gap: "6px" }}>✅ Completed Tasks</h4>
+                                    {completedTasks.map(t => <TaskCard key={t.id || t.firebaseId} task={t} roleView={normalizedRole} onComplete={handleCompleteTask} onDelete={handleDeleteTask} onEdit={handleEditTask} />)}
+                                </div>
+                            )}
                         </>
                     )}
                 </div>
             </div>
 
-            <TaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAssigned={loadTasks} />
+            <TaskModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingTask(null); }} onAssigned={loadTasks} taskToEdit={editingTask} />
         </>
     );
 }
